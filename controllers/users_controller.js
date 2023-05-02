@@ -1,7 +1,24 @@
 const User = require("../models/user");
 
-module.exports.profile = (req, res) => {
-  return res.render("user_profile");
+module.exports.profile = async (req, res) => {
+  try {
+    if (req.cookies.user_id) {
+      const user = await User.findById(req.cookies.user_id);
+      if (user) {
+        return res.render("user_profile", {
+          title: "User Profile",
+          user: user,
+        });
+      }
+      // return res.redirect("/users/sign-in");
+    } else {
+      return res.redirect("/users/sign-in");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  //
 };
 
 module.exports.post = (req, res) => {
@@ -41,5 +58,32 @@ module.exports.signIn = (req, res) => {
     title: "Codeal | Sign In",
   });
 };
+
 // sign in and create session for the user
-module.exports.createSession = (req, res) => {};
+module.exports.createSession = async (req, res) => {
+  try {
+    // find the user
+    const user = await User.findOne({ email: req.body.email });
+
+    // handle user found
+    if (user) {
+      // handle password which don't match
+      if (user.password != req.body.password) {
+        console.log("password not match");
+        return req.redirect("back");
+      }
+
+      // handel session creation
+      res.cookie("user_id", user.id);
+      return res.redirect("/users/profile");
+      //
+    } else {
+      // handle user not found
+      console.log("handled user not found");
+      return res.redirect("back");
+    }
+  } catch (error) {
+    console.log(error + " Error");
+    return;
+  }
+};
