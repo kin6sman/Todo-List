@@ -1,8 +1,13 @@
 const express = require("express"); //1. calling express
+const cookieParser = require("cookie-parser"); // 10. Cookies
 const app = express(); // 2. creating app/website server through express
 const port = 8000; // 3. initiating port
 const expressLayouts = require("express-ejs-layouts");
 const db = require("./config/mongoose");
+
+app.use(express.urlencoded()); //11.
+
+app.use(cookieParser()); // 12.
 
 // 9. Static files
 app.use(express.static("./assets"));
